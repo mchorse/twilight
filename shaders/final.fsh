@@ -29,6 +29,8 @@ void main()
 {
     vec3 color = texture2D(colortex0, texcoord).rgb;
     float raw_depth = texture2D(depthtex0, texcoord).r;
+    
+    /* TODO: switch to toScreenSpace */
     float depth = pow(raw_depth, far * (far * 0.025)) * rainStrength;
     
     /* Fog during rain */
