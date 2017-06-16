@@ -15,13 +15,3 @@ vec3 toScreenSpace(vec2 p, float d)
 
     return fragposition.xyz / fragposition.w;
 }
-
-vec3 toScreenSpace(vec2 p) 
-{
-    return toScreenSpace(p, texture2D(depthtex0, p).x);
-}
-
-vec3 toScreenSpace(vec3 p) 
-{
-    return toScreenSpace(p.xy, p.z);
-}
