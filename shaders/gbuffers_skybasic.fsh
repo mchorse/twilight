@@ -11,6 +11,8 @@ uniform mat4 gbufferProjectionInverse;
 
 uniform vec3 upPosition;
 
+uniform sampler2D depthtex0;
+
 uniform float viewWidth;
 uniform float viewHeight;
 

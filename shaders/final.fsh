@@ -55,7 +55,13 @@ void main()
     }
     
     /* Increase dominance of the green channel */
-    gl_FragColor.g *= 1.1;
-    gl_FragColor /= 1.1;
+    if (rainStrength > 0)
+    {
+        float factor = 1 + 0.1 * rainStrength;
+        
+        gl_FragColor.g *= factor;
+        gl_FragColor /= factor;
+    }
+    
     gl_FragColor.a = 1;
 }
