@@ -15,6 +15,8 @@ uniform sampler2D depthtex0;
 
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float frameTime;
+uniform int worldTime;
 
 #include "lib/converters.glsl"
 #include "lib/colors.glsl"
