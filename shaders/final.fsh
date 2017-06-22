@@ -7,6 +7,7 @@
  */
 
 #version 120
+#extension GL_EXT_gpu_shader4 : enable
 
 varying vec2 texcoord;
 
@@ -17,8 +18,10 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjectionInverse;
 
 uniform vec3 upPosition;
+uniform ivec2 eyeBrightnessSmooth;
 
 uniform sampler2D colortex0;
+uniform sampler2D colortex1;
 uniform sampler2D depthtex0;
 uniform sampler2DShadow shadowtex0;
 
@@ -28,13 +31,20 @@ uniform float frameTime;
 uniform int frameCounter;
 uniform int worldTime;
 
+uniform int viewWidth;
+uniform int viewHeight;
+
 #include "lib/converters.glsl"
 #include "lib/colors.glsl"
+#include "lib/time.glsl"
 #include "lib/sky.glsl"
+
+const float eyeBrightnessHalflife = 2.0;
 
 void main()
 {
     vec3 color = texture2D(colortex0, texcoord).rgb;
+    vec2 luma = texture2D(colortex1, texcoord).rg;
     float raw_depth = texture2D(depthtex0, texcoord).r;
     
     // color = pow(color, vec3(1.6));
@@ -45,13 +55,14 @@ void main()
     /* Fog during rain */
     if (depth != 1 || rainStrength == 1)
     {
-        depth += sin(frameCounter * 0.05 + texcoord.x) * 0.05;
-        depth = clamp(depth, 0, 1);
-        
         vec3 skyColor = getSky(texcoord, raw_depth);
         float skyDot = 1 - getSkyDot(texcoord, raw_depth);
+        float fog = depth + sin(frameCounter * 0.05 + texcoord.x) * 0.05 + 0.05;
         
-        gl_FragColor = vec4(mix(color, skyColor, depth), 1);
+        fog = clamp(fog, 0, 1);
+        fog *= 1 - (1 - luma.y) * (1 - eyeBrightnessSmooth.y / 240.0);
+        
+        gl_FragColor = vec4(mix(color, skyColor, fog), 1);
     }
     else
     {

@@ -5,6 +5,7 @@ uniform sampler2D lightmap;
 
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float frameTime;
 uniform int worldTime;
 
 varying vec4 color;
@@ -14,16 +15,23 @@ varying vec2 lmcoord;
 const float lightRounding = 20.0;
 
 #include "lib/colors.glsl"
+#include "lib/time.glsl"
 
 void main() 
 {
-    vec2 coord = floor(lmcoord * lightRounding + 0.5) / lightRounding;
-    vec4 light = texture2D(lightmap, coord);
+    float skyLight = lmcoord.y * (1 - getTimeCycleMixer());
+    float lum = mix(lmcoord.x, skyLight, skyLight);
     
-    float lum = 0.21 * light.r + 0.72 * light.g + 0.07 * light.b;
+    lum = floor(lum * lightRounding) / lightRounding;
     
-    light = vec4(mix(light_destination, light_source, pow(lum, 2.2)), 1);
+    vec3 light_color = mix(light_destination, light_source, lum);
+    
+    vec4 light = vec4(mix(light_color, light_sky, skyLight), 1);
     light = pow(light, vec4(1.7, 1.4, 1.2, 1));
     
-    gl_FragColor = light * texture2D(texture, texcoord) * color;
+    /* Applying lightmap on the texture and color */
+    
+    /* DRAWBUFFERS:01 */
+    gl_FragData[0] = light * texture2D(texture, texcoord) * color;
+    gl_FragData[1] = vec4(lmcoord.x, lmcoord.y, 0, 1);
 }

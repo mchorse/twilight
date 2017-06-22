@@ -20,6 +20,7 @@ uniform int worldTime;
 
 #include "lib/converters.glsl"
 #include "lib/colors.glsl"
+#include "lib/time.glsl"
 #include "lib/sky.glsl"
 
 void main() 
