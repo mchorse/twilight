@@ -31,8 +31,8 @@ uniform float frameTime;
 uniform int frameCounter;
 uniform int worldTime;
 
-uniform int viewWidth;
-uniform int viewHeight;
+uniform float viewWidth;
+uniform float viewHeight;
 
 #include "lib/converters.glsl"
 #include "lib/colors.glsl"
@@ -41,13 +41,24 @@ uniform int viewHeight;
 
 const float eyeBrightnessHalflife = 2.0;
 
+vec4 blur(sampler2D tex, vec2 newcoord) 
+{
+    vec2 pixel = vec2(1 / viewWidth, 1 / viewHeight) * 20;
+
+    vec3 blur0 = texture2D(tex,(newcoord)).rgb;
+    vec3 blur1 = texture2D(tex,(newcoord + pixel * vec2(1, 0))).rgb;
+    vec3 blur2 = texture2D(tex,(newcoord + pixel * vec2(0, 1))).rgb;
+    vec3 blur3 = texture2D(tex,(newcoord - pixel * vec2(1, 0))).rgb;
+    vec3 blur4 = texture2D(tex,(newcoord - pixel * vec2(0, 1))).rgb;
+
+    return vec4((blur1 + blur2 + blur3 + blur4) / 4, 1.0);
+}
+
 void main()
 {
     vec3 color = texture2D(colortex0, texcoord).rgb;
     vec2 luma = texture2D(colortex1, texcoord).rg;
     float raw_depth = texture2D(depthtex0, texcoord).r;
-    
-    // color = pow(color, vec3(1.6));
     
     /* TODO: switch to toScreenSpace */
     float depth = pow(raw_depth, far * (far * 0.025)) * rainStrength;
