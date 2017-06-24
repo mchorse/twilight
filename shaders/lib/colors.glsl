@@ -12,4 +12,4 @@ const vec3 night_void_color = rgb(61, 40, 91);
 
 const vec3 light_source = rgb(255, 180, 0) * 1.2;
 const vec3 light_destination = rgb(62, 90, 125);
-const vec3 light_sky = rgb(250, 255, 255);
+const vec3 light_sky = rgb(250, 255, 200);
