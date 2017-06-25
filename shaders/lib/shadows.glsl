@@ -1,5 +1,9 @@
 /**
- * Shadows
+ * Shadows. Requires following uniforms:
+ * - mat4 gbufferModelViewInverse;
+ * - mat4 shadowModelView;
+ * - mat4 shadowProjection;
+ * - sampler2DShadow shadowtex0;
  */
 
 const int shadowMapResolution = 2048;

@@ -1,7 +1,6 @@
 #version 120
 
 uniform sampler2D texture;
-uniform sampler2D lightmap;
 
 uniform float viewWidth;
 uniform float viewHeight;
