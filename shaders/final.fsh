@@ -28,6 +28,7 @@ uniform sampler2DShadow shadowtex0;
 uniform float far;
 uniform float rainStrength;
 uniform float frameTime;
+uniform float centerDepthSmooth;
 uniform int frameCounter;
 uniform int worldTime;
 
@@ -40,10 +41,11 @@ uniform float viewHeight;
 #include "lib/sky.glsl"
 
 const float eyeBrightnessHalflife = 2.0;
+const float centerDepthHalflife = 2.0f;
 
 vec4 blur(sampler2D tex, vec2 newcoord) 
 {
-    vec2 pixel = vec2(1 / viewWidth, 1 / viewHeight) * 20;
+    vec2 pixel = vec2(1 / viewWidth, 1 / viewHeight) * 3;
 
     vec3 blur0 = texture2D(tex,(newcoord)).rgb;
     vec3 blur1 = texture2D(tex,(newcoord + pixel * vec2(1, 0))).rgb;
@@ -59,6 +61,12 @@ void main()
     vec3 color = texture2D(colortex0, texcoord).rgb;
     vec2 luma = texture2D(colortex1, texcoord).rg;
     float raw_depth = texture2D(depthtex0, texcoord).r;
+    
+    float blur_factor = abs(pow(centerDepthSmooth, 50) - pow(raw_depth, 50));
+    
+    blur_factor = clamp(pow(1 - blur_factor, 3), 0, 1);
+    
+    color = mix(blur(colortex0, texcoord).rgb, color, blur_factor);
     
     /* TODO: switch to toScreenSpace */
     float depth = pow(raw_depth, far * (far * 0.025)) * rainStrength;
