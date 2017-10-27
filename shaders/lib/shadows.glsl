@@ -7,9 +7,9 @@
  */
 
 const int shadowMapResolution = 2048;
-const float shadowDistance = 128;
+const float shadowDistance = 256;
 
-float getShadow(vec3 screenSpace)
+float getShadow(vec3 screenSpace, float factor)
 {
     float shading = 1.0;
     
@@ -25,7 +25,7 @@ float getShadow(vec3 screenSpace)
     
     if (shadow.x < pos.z - 0.003)
     {
-        shading = 0.5;
+        shading = factor;
     }
     
     return shading;

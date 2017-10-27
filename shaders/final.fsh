@@ -14,6 +14,7 @@
 #extension GL_EXT_gpu_shader4 : enable
 
 #define DOF
+#define SHADOWS
 
 varying vec2 texcoord;
 
@@ -45,6 +46,7 @@ uniform float viewHeight;
 #include "lib/colors.glsl"
 #include "lib/time.glsl"
 #include "lib/sky.glsl"
+#include "lib/shadows.glsl"
 
 const float eyeBrightnessHalflife = 2.0;
 const float centerDepthHalflife = 2.0f;
@@ -68,6 +70,11 @@ void main()
     vec2 luma = texture2D(colortex1, texcoord).rg;
     float raw_depth = texture2D(depthtex0, texcoord).r;
     
+    color = rgb2hsv(color);
+    color.g *= 1.25;
+    color.b *= 1.25;
+    color = hsv2rgb(color);
+    
     /* Depth of Field */
     #ifdef DOF
         float blur_factor = abs(pow(centerDepthSmooth, 50) - pow(raw_depth, 50));
@@ -76,7 +83,7 @@ void main()
 
         if (blur_factor < 1)
         {
-            color = mix(blur(colortex0, texcoord, (1 - blur_factor) * 3.5).rgb * 0.9, color, blur_factor);
+            color = mix(blur(colortex0, texcoord, (1 - blur_factor) * 3.5).rgb, color, blur_factor);
         }
     #endif
     
@@ -89,7 +96,7 @@ void main()
     {
         vec3 skyColor = getSky(texcoord, raw_depth);
         float skyDot = 1 - getSkyDot(texcoord, raw_depth);
-        float fog = depth + sin(frameCounter * 0.05 + texcoord.x) * 0.05 + 0.05;
+        float fog = depth;
         
         fog = clamp(fog, 0, 1);
         
@@ -103,16 +110,14 @@ void main()
         gl_FragColor = vec4(color, 1);
     }
     
-    /* Increase dominance of the blue channel */
-    if (rainStrength > 0)
-    {
-        float factor = 1 + 0.1 * rainStrength;
-        
-        gl_FragColor.b *= factor;
-        gl_FragColor /= factor;
-    }
+    #ifdef SHADOWS
+        if (raw_depth != 1)
+        {
+            gl_FragColor *= getShadow(toScreenSpace(texcoord, raw_depth), 0.5);
+        }
+    #endif
     
     /* Vignette */
-    gl_FragColor *= 1.0 - pow(length(texcoord.xy - 0.5), 2);
+    gl_FragColor *= 1.0 - pow(length(texcoord.xy - 0.5), 3);
     gl_FragColor.a = 1;
 }

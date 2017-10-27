@@ -4,6 +4,8 @@ varying vec4 color;
 varying vec2 lmcoord;
 varying vec2 texcoord;
 
+uniform float frameTimeCounter; 
+
 void main() 
 {
     gl_Position = ftransform();

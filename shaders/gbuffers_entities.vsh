@@ -3,6 +3,9 @@
 varying vec4 color;
 varying vec2 lmcoord;
 varying vec2 texcoord;
+varying vec3 normal;
+
+uniform float frameTimeCounter; 
 
 void main() 
 {
@@ -11,4 +14,5 @@ void main()
     color = gl_Color;
     lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     texcoord = texcoord = gl_MultiTexCoord0.st;
+    normal = gl_Normal * gl_NormalMatrix;
 }
